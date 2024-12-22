@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game - Fruits</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            grid-gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .card img {
+            width: 100px;
+            height: 100px;
+            display: none;
+        }
+        .card.flipped img {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game"></div>
+    <script>
+
+        /*
+        The D3.js library was primarily used for:
+
+          Selecting DOM elements.
+          Binding data to elements and dynamically creating DOM elements (div and img).
+          Adding interactivity with event listeners.
+          Manipulating classes for dynamic styling and game logic.
+        */ 
+
+        const fruits = [
+            { name: "Apple", image: "img/apple.png" },
+            { name: "Banana", image: "img/banana.png" },
+            { name: "Cherry", image: "img/cherry.png" },
+            { name: "Grape", image: "img/grape.png" },
+            { name: "Lemon", image: "img/lemon.png" },
+            { name: "Peach", image: "img/peach.png" },
+            { name: "Pear", image: "img/pear.png" },
+            { name: "Plum", image: "img/plum.png" },
+            { name: "Strawberry", image: "img/strawberry.png" },
+            { name: "Avocado", image: "img/avocado.png" },
+            { name: "Kiwi", image: "img/kiwi.png" },
+            { name: "Orange", image: "img/orange.png" },
+            { name: "Apricot", image: "img/apricot.png" },
+            { name: "Blueberry", image: "img/blueberry.png" },
+            { name: "Raspberry", image: "img/raspberry.png" }
+        ];
+
+        //selects game element and lets it manipulate with D3
+        const gameContainer = d3.select("#game");
+
+        // Double the fruits for pairs and shuffle them
+        let cards = [...fruits, ...fruits]
+            .sort(() => Math.random() - 0.5);
+
+        // Create cards
+        gameContainer
+            .selectAll(".card")
+            .data(cards)
+            .enter()
+            .append("div")
+            .attr("class", "card")
+            .append("img")
+            .attr("src", d => d.image)
+            .attr("alt", d => d.name);
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        // Add click event to cards
+        d3.selectAll(".card").on("click", function (event, d) {
+            const card = d3.select(this);
+
+            // Ignore clicks on already matched or flipped cards
+            if (card.classed("flipped") || flippedCards.length === 2) return;
+
+            // Flip the card
+            card.classed("flipped", true);
+            flippedCards.push(card);
+
+            // Check for a match
+            if (flippedCards.length === 2) {
+                const [card1, card2] = flippedCards;
+                const card1Image = card1.select("img").attr("src");
+                const card2Image = card2.select("img").attr("src");
+
+                if (card1Image === card2Image) {
+                    // It's a match
+                    flippedCards = [];
+                    matchedPairs++;
+                    if (matchedPairs === fruits.length) {
+                        alert("Congratulations! You found all the pairs!");
+                    }
+                } else {
+                    // Not a match, flip back after delay
+                    setTimeout(() => {
+                        card1.classed("flipped", false);
+                        card2.classed("flipped", false);
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
